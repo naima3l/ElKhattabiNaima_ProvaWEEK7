@@ -28,13 +28,7 @@ namespace Impegni
 
         internal static void UpdateCommitment()
         {
-            Commitment commitmentChosen = ChooseCommitment();
-
-            if(commitmentChosen.Status == true)
-            {
-                Console.WriteLine("L'impegno che stai provando a modificare è già stato portato a termine");
-                return;
-            }
+            Commitment commitmentChosen = ChooseCommitmentNotDone();
 
             if(commitmentChosen.Id == null)
             {
@@ -111,6 +105,38 @@ namespace Impegni
             return commitmentChosen;
         }
 
+        private static Commitment ChooseCommitmentNotDone()
+        {
+            List<Commitment> commitments = cr.Fetch();
+            List<Commitment> commitmentsNotDone = new List<Commitment>();
+            
+            foreach(var x in commitments)
+            {
+                if(x.Status == false)
+                {
+                    commitmentsNotDone.Add(x);
+                }
+            }
+
+            int i = 1;
+            foreach (var x in commitmentsNotDone)
+            {
+                Console.WriteLine($"Premi {i} per {x.Print()}");
+                i++;
+            }
+
+            bool isInt;
+            int commitmentChosen;
+            do
+            {
+                Console.WriteLine("Quale impegno vuoi modificare?");
+
+                isInt = int.TryParse(Console.ReadLine(), out commitmentChosen);
+
+            } while (!isInt || commitmentChosen <= 0 || commitmentChosen > commitmentsNotDone.Count);
+
+            return commitmentsNotDone.ElementAt(commitmentChosen - 1);
+        }
         private static Commitment ChooseCommitment()
         {
             List<Commitment> commitments = cr.Fetch();
@@ -212,7 +238,7 @@ namespace Impegni
 
         internal static void UpdateCommitmentStatus()
         {
-            Commitment commitmentChosen = ChooseCommitment();
+            Commitment commitmentChosen = ChooseCommitmentNotDone();
             Commitment commitment = commitmentChosen;
 
             if (commitmentChosen.Id == null)
@@ -230,32 +256,6 @@ namespace Impegni
 
             cr.Update(commitment);
         }
-
-        //private static Commitment ChooseCommitmentNotDone()
-        //{
-        //    List<Commitment> commitments = cr.Fetch();
-        //    var commitmentsNotDone = commitments.Where(u => u.Status == false);
-
-        //        int i = 1;
-        //        foreach (var x in commitmentsNotDone)
-        //        {
-        //            Console.WriteLine($"Premi {i} per {x.Print()}");
-        //            i++;
-        //        }
-
-        //        bool isInt;
-        //        int commitmentChosen;
-        //        do
-        //        {
-        //            Console.WriteLine("Quale impegno vuoi eliminare/modificare?");
-
-        //            isInt = int.TryParse(Console.ReadLine(), out commitmentChosen);
-
-        //        } while (!isInt || commitmentChosen <= 0 || commitmentChosen > commitmentsNotDone.Count());
-
-        //    return commitmentsNotDone.ElementAt(commitmentChosen - 1);
-
-        //}
 
         internal static void ShowCommitmentsByStatus()
         {
